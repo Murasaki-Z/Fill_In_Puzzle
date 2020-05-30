@@ -9,20 +9,16 @@
                    ]).
 
 puzzle_solution(Puzzle, WordList) :-
-	
-	%transpose(Puzzle, TPuzzle),
-	%slotUtil(Puzzle, [], S1),
-	%slotUtil(TPuzzle, S1, S2),
-	slotUtil(Puzzle,Square),
+	squareUtil(Puzzle,Square),
 	fillUtil(Square, WordList).
 
 
 
 
-slotUtil(Puzzle,Square):-
-	slotHelper(Puzzle,S1),
+squareUtil(Puzzle,Square):-
+	squareHelper(Puzzle,S1),
 	transpose(Puzzle,TPuzzle),
-	slotHelper(TPuzzle,S2),
+	squareHelper(TPuzzle,S2),
 	append(S1,S2,Square).
 
 
@@ -42,60 +38,33 @@ canJoin(S1, W1) :-
 
 join(X2, X2).
 
-getSlots([], CurrentSlot, Slots) :-
-    length(CurrentSlot, N),
+getsquares([], Currentsquare, Square) :-
+    length(Currentsquare, N),
     (   N > 1
-    ->  Slots = [CurrentSlot]
-    ;   Slots = []
+    ->  Square = [Currentsquare]
+    ;   Square = []
     ).
 
 
-getSlots([Var|Vars], CurrentSlot, Slots) :-
+getsquares([Var|Vars], Currentsquare, Square) :-
     (   Var \== '#'
-    ->  append(CurrentSlot, [Var], CurrentSlot1),
-        getSlots(Vars, CurrentSlot1, Slots)
-    ;   length(CurrentSlot, N),
+    ->  append(Currentsquare, [Var], Currentsquare1),
+        getsquares(Vars, Currentsquare1, Square)
+    ;   length(Currentsquare, N),
         (   N > 1
-        ->  Slots = [CurrentSlot|Slots1]
-        ;   Slots = Slots1
+        ->  Square = [Currentsquare|S1]
+        ;   Square = S1
         ),
-        getSlots(Vars, [], Slots1)
+        getsquares(Vars, [], S1)
     ).
 
-/*
-* slotHelper(+Puzzle, -Slots).
-*
-* Gets slots from each row in a puzzle
-*/
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-slotHelper([], []).
-slotHelper([Row|Rows], Slots) :-
-    getSlots(Row, [], Slots1),
-    slotHelper(Rows, Slots2),
-    append(Slots1, Slots2, Slots).
-/*
-rowUtil([], Word, InSlot, OutSlot) :-
-	(	Word == []
-	->	join(OutSlot, InSlot)
-	;	(	length(Word, Length), 	Length > 1
-		->	append(InSlot, [Word], OutSlot)
-		;	join(OutSlot, InSlot)
-		)
-	).
-rowUtil([Item|OtherItems], Word, InSlot, OutSlot) :-
-	(	Item == '#'
-	->	(	Word == []
-		->	rowUtil(OtherItems, [], InSlot, OutSlot)
-		;	(	length(Word, Length), Length > 1
-			->	append(InSlot, [Word], Temp),
-				rowUtil(OtherItems, [], Temp, OutSlot)
-			;	rowUtil(OtherItems, [], InSlot, OutSlot)
-			)
-		)
-	;	append(Word, [Item], NewCurrentWord),
-		rowUtil(OtherItems, NewCurrentWord, InSlot, OutSlot)
-	).
-*/
+
+squareHelper([], []).
+squareHelper([Row|Rows], Square) :-
+    getsquares(Row, [], S1),
+    squareHelper(Rows, S2),
+    append(S1, S2, Square).
+
 
 fillUtil([], _).
 fillUtil([Square|S2], WordList) :-
@@ -121,9 +90,7 @@ filler(Square, [Word|WordList], NewWordListIn, NewWordListOut) :-
 
 
 
-comboUtil([], _, Answer, Current, Current,
-	Input, Input) :-
-	
+comboUtil([], _, Answer, Current, Current,Input, Input) :-
 	Answer > 0.
 comboUtil([Square|OtherSquares], WordList, Least, Current,
 	BestMatch, Input, Output) :-
@@ -148,7 +115,6 @@ combinationCheck(Square, [Word|OtherWords], CurrentMatches, Total) :-
 	->	combinationCheck(Square, OtherWords, CurrentMatches+1, Total)
 	;	combinationCheck(Square, OtherWords, CurrentMatches, Total)
 	).
-
 
 
 
